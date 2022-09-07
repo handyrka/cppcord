@@ -1,0 +1,122 @@
+window, dialog {
+    color: white;
+    background-color: #323345;
+}
+
+scrolledwindow {
+    background: #282938;
+}
+
+button {
+    border-radius: 0px;
+    border-style: none;
+    background: #282938;
+}
+
+entry {
+    border: 0px;
+    border-style: none;
+    background: #282938;
+    color: white;
+}
+
+button:hover {
+    background: #323345;
+}
+
+list {
+    background-color: #282938;
+    box-shadow: 0 0 0 black;
+    border-style: none;
+}
+
+label {
+    color: white;
+    font-size: 18px;
+}
+
+spinner {
+    color: white;
+}
+
+menu {
+    background-color: #323345;
+}
+
+combobox {
+    color: white;
+}
+
+menuitem label {
+    color: white;
+    font-size: 14px;
+}
+
+menuitem:disabled label {
+    color: darkgray;
+}
+
+menuitem:hover {
+    background-color: #282938;
+}
+
+separator {
+    background-color: #282938;
+}
+
+list-row:hover {
+    background-color: #3c3d52;
+}
+
+list-row:active {
+    background-color: #282938;
+}
+
+entry {
+    
+    border-radius: 0px;
+    border-style: none;
+    background-color: #282938;
+    font-size: 14px;
+}
+
+.name {
+    color: white;
+    font-size: 14px;
+}
+
+.subname {
+    color: #aaaaaa;
+    font-size: 12px;
+}
+
+.topic {
+    color: #aaaaaa;
+    font-size: 14px;
+}
+
+.username {
+    font-size: 16px;
+}
+
+.content {
+    font-size: 14px;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #aaaaaa;
+}
+
+.typing {
+    background-color: #282938;
+    font-size: 12px;
+}
+
+.main_box {
+    background-color: #282938;
+}
+
+.message-list {
+    background-color: #323345;
+}
