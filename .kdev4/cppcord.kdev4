@@ -1,0 +1,79 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x0e\x00c\x00p\x00p\x00c\x00o\x00r\x00d)
+
+[CustomDefinesAndIncludes][ProjectPath0]
+Path=.
+parseAmbiguousAsCPP=true
+parserArguments=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c++2a
+parserArgumentsC=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c99
+parserArgumentsCuda=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c++11
+parserArgumentsOpenCL=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -cl-std=CL1.1
+
+[CustomDefinesAndIncludes][ProjectPath0][Compiler]
+Name=Clang
+
+[CustomDefinesAndIncludes][ProjectPath0][Includes]
+1=/usr/include/gtkmm-3.0
+10=/usr/include/sysprof-4
+11=/usr/include/libmount
+12=/usr/include/cairomm-1.0
+13=/usr/include/blkid
+14=/usr/include/sigc++-2.0
+15=/usr/lib/sigc++-2.0/include
+16=/usr/include/atk-1.0
+17=/usr/include/gtk-3.0
+18=/usr/include/pango-1.0
+19=/usr/include/harfbuzz
+2=/usr/include/gtk-3.0/unix-print
+20=/usr/include/freetype2
+21=/usr/lib/gtkmm-3.0/include
+22=/usr/include/cairo
+23=/usr/lib/cairomm-1.0/include
+24=/usr/include/lzo
+25=/usr/include/pixman-1
+26=/usr/include/gdk-pixbuf-2.0
+27=/usr/include/gio-unix-2.0
+28=/usr/include/glibmm-2.4
+29=/usr/include/at-spi2-atk/2.0
+3=/usr/include/gdkmm-3.0
+30=/usr/include/dbus-1.0
+31=/usr/lib/dbus-1.0/include
+32=/usr/include/giomm-2.4
+33=/usr/include/at-spi-2.0
+34=/usr/include/libpng16
+35=/usr/include/pangomm-1.4
+36=/usr/lib/pangomm-1.4/include
+37=/usr/include/atkmm-1.6
+38=/usr/lib/glibmm-2.4/include
+39=/usr/lib/atkmm-1.6/include
+4=/usr/include/cloudproviders
+5=/usr/lib/gdkmm-3.0/include
+6=/usr/lib/giomm-2.4/include
+7=/usr/include/glib-2.0
+8=/usr/include/fribidi
+9=/usr/lib/glib-2.0/include
+
+[Launch]
+Launch Configurations=Launch Configuration 0
+
+[Launch][Launch Configuration 0]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=Новая конфигурация «Компилируемая программа»
+Type=Native Application
+
+[Launch][Launch Configuration 0][Data]
+Arguments=
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x02\x00\x00\x00\x0e\x00c\x00p\x00p\x00c\x00o\x00r\x00d\x00\x00\x00\n\x00b\x00u\x00i\x00l\x00d)
+Dependency Action=Build
+EnvironmentGroup=
+Executable=file:///home/hander/Документы/cppcord/bin/cppcord.exe
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Kill Before Executing Again=65536
+Project Target=
+Use External Terminal=false
+Working Directory=file:///home/hander/Документы/cppcord/bin
+isExecutable=true
+
+[Project]
+VersionControlSupport=kdevgit
