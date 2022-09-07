@@ -21,3 +21,5 @@ I also don't take any responsibilities for your accounts getting banned :)
   - Zlib
   - ssl & crypto
   - pthread
+
+Tested on Arch Linux, Linux Mint, Manjaro, Manjaro ARM and FreeBSD.
