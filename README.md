@@ -18,6 +18,6 @@ I also don't take any responsibilities for your accounts getting banned :)
 - [ixwebsocket](https://github.com/machinezone/IXWebSocket)
 - gtkmm3
 - Misc:
-  -Zlib
-  -ssl & crypto
-  -pthread
+  - Zlib
+  - ssl & crypto
+  - pthread
