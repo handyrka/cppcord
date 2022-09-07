@@ -1,6 +1,5 @@
 #include "http.h"
 #include "config.h"
-#include <vector>
 #include <string.h>
 #include <algorithm>
 
@@ -16,11 +15,6 @@ namespace core
         return size * nmemb;
     }
 
-    void HttpResponse::dispose()
-    {
-        std::free(m_Data);
-    }
-
     CURLcode HttpResponse::code() const
     {
         return m_Code;
@@ -28,7 +22,7 @@ namespace core
 
     const char* HttpResponse::data() const
     {
-        return (const char*)m_Data;
+        return (const char*)&m_Data[0];
     }
 
     size_t HttpResponse::size() const
@@ -38,7 +32,7 @@ namespace core
 
     std::string HttpResponse::to_string() const
     {
-        return std::string(m_Data, m_Size);
+        return std::string(&m_Data[0], m_Size);
     }
 
     HttpResponse HttpClient::get(std::string url, bool auth)
@@ -63,8 +57,7 @@ namespace core
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         response.m_Code = curl_easy_perform(curl);
-        response.m_Data = (char*)std::malloc(buffer.size() * sizeof(char));
-        memcpy(response.m_Data, &buffer[0], buffer.size() * sizeof(char));
+        response.m_Data = buffer;
         response.m_Size = buffer.size();
 
         curl_easy_cleanup(curl);
@@ -98,8 +91,7 @@ namespace core
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         response.m_Code = curl_easy_perform(curl);
-        response.m_Data = (char*)malloc(buffer.size() * sizeof(char));
-        memcpy(response.m_Data, &buffer[0], buffer.size() * sizeof(char));
+        response.m_Data = buffer;
         response.m_Size = buffer.size();
 
         curl_easy_cleanup(curl);

@@ -3,8 +3,7 @@
 #include <curl/curl.h>
 #include <functional>
 #include <thread>
-#include <mutex>
-#include <map>
+#include <vector>
 
 namespace core
 {
@@ -15,8 +14,6 @@ namespace core
     class HttpResponse
     {
     public:
-        void dispose();
-
         CURLcode code() const;
         const char* data() const;
         size_t size() const;
@@ -24,7 +21,7 @@ namespace core
         std::string to_string() const;
 
     private:
-        char* m_Data;
+        std::vector<char> m_Data;
         size_t m_Size;
         CURLcode m_Code;
 

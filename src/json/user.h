@@ -67,7 +67,6 @@ namespace json
                 User user;
                 user.from_json(value);
                 callback(user);
-                resp.dispose();
             });
         }
 

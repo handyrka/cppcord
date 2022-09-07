@@ -22,7 +22,6 @@ namespace core
         {
             //Lock mutex so that other tasks will wait in queue
             std::lock_guard lock(m_CacheMutex);
-
             std::string fname = make_filename(url);
 
             //Return already cached ones
@@ -38,9 +37,13 @@ namespace core
 
                     auto loader = Gdk::PixbufLoader::create();
                     loader->write((const guint8*)contents, length);
+
+                    if(isIcon)
+                        loader->set_size(32, 32);
+
                     loader->close();
                     g_free(contents);
-                    
+
                     auto pixbuf = loader->get_animation();
                     cb(pixbuf);
                     return;
@@ -69,11 +72,14 @@ namespace core
 
             // Load pixbuf
             auto loader = Gdk::PixbufLoader::create();
-            loader->write((guint8*)resp.data(), resp.size());
+            loader->write((const guint8*)resp.data(), resp.size());
+
+            if(isIcon)
+                loader->set_size(32, 32);
+
             loader->close();
-            
+
             auto pixbuf = loader->get_animation();
-            resp.dispose();
 
             //Callback
             cb(pixbuf);

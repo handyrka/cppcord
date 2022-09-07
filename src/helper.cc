@@ -8,7 +8,7 @@ namespace helper
     std::string make_snowflake()
     {
         using namespace std::chrono;
-        static uint counter = 0;
+        static uint64_t counter = 0;
         uint64_t mil = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
         uint64_t epoch = mil - DISCORD_EPOCH;
 

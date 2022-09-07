@@ -73,7 +73,7 @@ namespace json
 
         inline void send_typing() const 
         { 
-            core::HttpClient::post_async(core::DISCORD_API_URL + "/channels/" + m_ID + "/typing", "", [](core::HttpResponse resp){ resp.dispose(); });
+            core::HttpClient::post_async(core::DISCORD_API_URL + "/channels/" + m_ID + "/typing", "", [](core::HttpResponse resp){ });
         }
 
         inline void fetch_messages_async(std::function<void(std::vector<Message>)> callback, int max = 50)
@@ -86,7 +86,6 @@ namespace json
                 Json::Reader reader;
 
                 reader.parse(resp.to_string(), value);
-                resp.dispose();
 
                 for(auto& msg : value)
                 {
@@ -110,7 +109,6 @@ namespace json
                 Json::Reader reader;
 
                 reader.parse(resp.to_string(), value);
-                resp.dispose();
 
                 msg.from_json(value);
 
@@ -123,7 +121,6 @@ namespace json
             core::HttpClient::post_async(core::DISCORD_API_URL + "/channels/" + m_ID + "/messages", message.to_json(), [&](core::HttpResponse resp)
             {
                 std::cout << "[Channel::send_message_async()] Response from the server: " << resp.to_string() << std::endl;
-                resp.dispose();
             });
         }
 
