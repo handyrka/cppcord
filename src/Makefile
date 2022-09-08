@@ -21,6 +21,10 @@ CXX_LIBS += $(shell pkg-config --libs libcurl)
 CXX_LIBS += $(shell pkg-config --libs jsoncpp)
 CXX_LIBS += -lixwebsocket -lcrypto -lssl -lz -lpthread
 
+ifeq ($(OS),Windows_NT)
+CXX_LIBS += -lws2_32 -lcrypt32 -lshlwapi
+endif
+
 .PHONY:all
 
 all:$(CXX_OFILES) $(CXX_TARGET)

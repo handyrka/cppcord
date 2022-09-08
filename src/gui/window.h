@@ -25,7 +25,7 @@ namespace gui
         void construct_ready();
         void construct_error();
         void construct_lists();
-        void append_message(json::Message msg);
+        void append_message(json::Message msg, bool _new = false);
 
         // Signals (?)
         void channel_switched(int index);
@@ -49,6 +49,7 @@ namespace gui
         Gtk::Button* m_PrivateButton, *m_ServerButton;
         Gtk::Button* m_UploadButton, *m_SendButton;
         Gtk::ScrolledWindow* m_MessageScrolled;
+        Gtk::Viewport* m_MessageView;
 
         std::shared_ptr<core::Websocket> m_Sock;
         std::vector<std::string> m_ChannelNames;
@@ -57,7 +58,11 @@ namespace gui
         // Current channel related
         json::Channel m_CurrentChannel;
         std::map<std::string, Gtk::Box*> m_CurrentChannelMessages;
+        std::string m_CurrentChannelFirstMessage;
         std::vector<std::string> m_CurrentChannelTyping;
+        bool m_LoadingMessages = false;
+        bool m_MessageScrollLock = false;
+        double m_PreviousUpper = 0;
 
         Glib::RefPtr<Glib::MainContext> m_MainContext;
     };

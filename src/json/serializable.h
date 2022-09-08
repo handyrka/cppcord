@@ -10,6 +10,6 @@ namespace json
     public:        
         inline virtual ~Serializable() {}
         inline virtual std::string to_json() const { return ""; }
-        inline virtual void from_json(Json::Value& value) {}
+        inline virtual void from_json(Json::Value& value) {  }
     };
 }

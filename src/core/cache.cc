@@ -20,70 +20,76 @@ namespace core
             
         std::thread([=]
         {
-            //Lock mutex so that other tasks will wait in queue
-            std::lock_guard lock(m_CacheMutex);
-            std::string fname = make_filename(url);
-
-            //Return already cached ones
-            if(!recache)
+            try
             {
-                if(std::filesystem::exists(fname))
+                //Lock mutex so that other tasks will wait in queue
+                std::lock_guard lock(m_CacheMutex);
+                std::string fname = make_filename(url);
+
+                //Return already cached ones
+                if(!recache)
                 {
-                    char* contents = nullptr;
-                    gsize length = 0;
+                    if(std::filesystem::exists(fname))
+                    {
+                        char* contents = nullptr;
+                        gsize length = 0;
 
-                    auto file = Gio::File::create_for_path(fname);
-                    file->load_contents(contents, length);
+                        auto file = Gio::File::create_for_path(fname);
+                        file->load_contents(contents, length);
 
-                    auto loader = Gdk::PixbufLoader::create();
-                    loader->write((const guint8*)contents, length);
+                        auto loader = Gdk::PixbufLoader::create();
+                        loader->write((const guint8*)contents, length);
 
-                    if(isIcon)
-                        loader->set_size(32, 32);
+                        if(isIcon)
+                            loader->set_size(32, 32);
 
-                    loader->close();
-                    g_free(contents);
+                        loader->close();
+                        g_free(contents);
 
-                    auto pixbuf = loader->get_animation();
-                    cb(pixbuf);
-                    return;
+                        auto pixbuf = loader->get_animation();
+                        cb(pixbuf);
+                        return;
+                    }
                 }
-            }
 
-            //Check for value in counter
-            if(++m_CacheCounter >= 5)
+                //Check for value in counter
+                if(++m_CacheCounter >= 5)
+                {
+                    m_CacheCounter = 0;
+                    std::cout << "[CacheManager::cache()] Reached rate limit, waiting..." << std::endl;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500)); //Short nap
+                }
+
+                auto resp = HttpClient::get(url);
+
+                if(resp.code() != CURLcode::CURLE_OK)
+                    throw std::runtime_error("[CacheManager::cache()] Failed to GET " + url);
+
+                std::cout << "[CacheManager::cache()] GET " << url << " success." << std::endl;
+
+                //Write data to a file
+                std::ofstream str (fname, std::ios::binary);
+                str.write(resp.data(), resp.size());
+                str.close();
+
+                // Load pixbuf
+                auto loader = Gdk::PixbufLoader::create();
+                loader->write((const guint8*)resp.data(), resp.size());
+
+                if(isIcon)
+                    loader->set_size(32, 32);
+
+                loader->close();
+
+                auto pixbuf = loader->get_animation();
+
+                //Callback
+                cb(pixbuf);
+            }
+            catch(std::exception e)
             {
-                m_CacheCounter = 0;
-                std::cout << "[CacheManager::cache()] Reached rate limit, waiting..." << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(500)); //Short nap
+                std::cout << "[CacheManager::cache()] Failed to cache image: " << e.what() << std::endl;
             }
-
-            auto resp = HttpClient::get(url);
-            
-            if(resp.code() != CURLcode::CURLE_OK)
-                throw std::runtime_error("[CacheManager::cache()] Failed to GET " + url);
-    
-            std::cout << "[CacheManager::cache()] GET " << url << " success." << std::endl;
-
-            //Write data to a file
-            std::ofstream str (fname);
-            str.write(resp.data(), resp.size());
-            str.close();
-
-            // Load pixbuf
-            auto loader = Gdk::PixbufLoader::create();
-            loader->write((const guint8*)resp.data(), resp.size());
-
-            if(isIcon)
-                loader->set_size(32, 32);
-
-            loader->close();
-
-            auto pixbuf = loader->get_animation();
-
-            //Callback
-            cb(pixbuf);
-
         }).detach();
     }
 

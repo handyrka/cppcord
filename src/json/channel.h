@@ -94,7 +94,27 @@ namespace json
                     mgs.push_back(m);
                 }
 
-                std::reverse(mgs.begin(), mgs.end());
+                callback(mgs);
+            });
+        }
+
+        inline void fetch_messages_async_before(std::string id, std::function<void(std::vector<Message>)> callback, int max = 50)
+        {
+            core::HttpClient::get_async(core::DISCORD_API_URL + "/channels/" + m_ID + "/messages?limit=" + std::to_string(max) + "&before=" + id, [=](core::HttpResponse resp)
+            {
+                std::vector<Message> mgs;
+
+                Json::Value value;
+                Json::Reader reader;
+
+                reader.parse(resp.to_string(), value);
+
+                for(auto& msg : value)
+                {
+                    Message m;
+                    m.from_json(msg);
+                    mgs.push_back(m);
+                }
 
                 callback(mgs);
             });

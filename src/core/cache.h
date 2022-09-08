@@ -10,7 +10,6 @@
 namespace core
 {
     using CacheManagerCallback = std::function<void(Glib::RefPtr<Gdk::PixbufAnimation>&)>;
-
     using CacheManagerUserCallback = std::function<void(json::User&)>;
 
     class CacheManager

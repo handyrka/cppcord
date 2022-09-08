@@ -175,6 +175,10 @@ namespace gui
             if(ind < 0)
                 return;
 
+            m_LoadingMessages = false;
+            m_MessageScrollLock = false;
+            m_PreviousUpper = 0;
+            m_CurrentChannelFirstMessage = "";
             m_CurrentChannelMessages.clear();
             m_CurrentChannel = m_Sock->m_PrivateChannels[ind];
             m_PrivateList->set_sensitive(false);
@@ -246,21 +250,70 @@ namespace gui
 
         // Message list
         m_MessageScrolled = Gtk::make_managed<Gtk::ScrolledWindow>();
-        m_MessageScrolled->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+        m_MessageScrolled->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
         m_MessageScrolled->set_hexpand();
         m_MessageScrolled->set_vexpand();
 
-        auto viewport = Gtk::make_managed<Gtk::Viewport>(m_MessageScrolled->get_hadjustment(), m_MessageScrolled->get_vadjustment());
-        viewport->set_hexpand();
-        viewport->set_vexpand();
+        auto adjust = m_MessageScrolled->get_vadjustment();
+
+
+        //TODO: fix
+        adjust->property_upper().signal_changed().connect([this, adjust]
+        {
+            if(m_PreviousUpper == 0 || adjust->get_value() > adjust->get_upper() - adjust->get_page_size() * 1.5)
+                adjust->set_value(adjust->get_upper());
+
+            m_PreviousUpper = adjust->get_upper();
+        });
+
+        adjust->signal_value_changed().connect([this, adjust]
+        {
+            if(m_CurrentChannelFirstMessage.empty())
+                return;
+
+            if(adjust->get_value() <= adjust->get_lower())
+            {
+                if(m_LoadingMessages)
+                    return;
+
+                m_LoadingMessages = true;
+                m_MessageScrollLock = true;
+                m_CurrentChannel.fetch_messages_async_before(m_CurrentChannelFirstMessage, [&](std::vector<json::Message> messages)
+                {
+                    m_MainContext->invoke([this, messages, adjust]
+                    {
+                        m_CurrentChannelFirstMessage = "";
+
+                        std::cout << "[signal_value_changed()] Got " << messages.size() << " more messages" << std::endl;
+
+                        if(messages.size() <= 0)
+                            return false;
+
+                        for(auto& msg : messages)
+                            append_message(msg);
+
+                        if(m_CurrentChannelFirstMessage.empty())
+                            m_CurrentChannelFirstMessage = messages[messages.size() - 1].m_ID;
+
+                        m_LoadingMessages = false;
+                        m_MessageScrollLock = false;
+                        return false;
+                    });
+                }, 25);
+            }
+        });
+
+        m_MessageView = Gtk::make_managed<Gtk::Viewport>(m_MessageScrolled->get_hadjustment(), m_MessageScrolled->get_vadjustment());
+        m_MessageView->set_hexpand();
+        m_MessageView->set_vexpand();
 
         m_MessageList = Gtk::make_managed<Gtk::ListBox>();
         m_MessageList->set_hexpand();
         m_MessageList->set_vexpand();
         m_MessageList->get_style_context()->add_class("message-list");
 
-        viewport->add(*m_MessageList);
-        m_MessageScrolled->add(*viewport);
+        m_MessageView->add(*m_MessageList);
+        m_MessageScrolled->add(*m_MessageView);
         mainBox->add(*m_MessageScrolled);
 
         // Upload button, Text View, send button
@@ -350,6 +403,7 @@ namespace gui
     void Window::construct_lists()
     {
         // User information
+        // TODO: add user presence change button
 
         // Init private channels
 
@@ -425,7 +479,7 @@ namespace gui
         }
     }
 
-    void Window::append_message(json::Message msg)
+    void Window::append_message(json::Message msg, bool _new)
     {
         auto box = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 2);
         box->set_vexpand();
@@ -457,7 +511,7 @@ namespace gui
             });
         });
 
-        // TODO: fix message look, add message embeds and attachements, store messages in list so that they can be edited. also message sending, typing indicator, deleting..
+        // TODO: add message embeds and attachements, store messages in list so that they can be edited. also deleting..
 
         // Username
         auto name = Gtk::make_managed<Gtk::Label>(user.get_as_tag());
@@ -489,7 +543,11 @@ namespace gui
         m_CurrentChannelMessages[msg.m_ID] = box;
 
         box->show_all();
-        m_MessageList->add(*box);
+
+        if(!_new)
+            m_MessageList->insert(*box, 0);
+        else
+            m_MessageList->append(*box);
     }
 
     void Window::ready()
@@ -527,11 +585,7 @@ namespace gui
             m_CurrentChannelTyping.erase(std::remove(m_CurrentChannelTyping.begin(), m_CurrentChannelTyping.end(), message.m_Author.m_ID), m_CurrentChannelTyping.end());
             update_typing();
 
-            append_message(message);
-            m_MessageList->show_all();
-
-            auto adj = m_MessageScrolled->get_vadjustment();
-            adj->set_value(adj->get_upper());
+            append_message(message, true);
 
             return false;
         });
@@ -578,7 +632,6 @@ namespace gui
             delete el;
 
         m_ChannelNameLabel->set_text(m_ChannelNames[index]);
-
         m_CurrentChannel.fetch_messages_async([&](std::vector<json::Message> messages)
         {
             m_MainContext->invoke([this, messages]
@@ -586,7 +639,9 @@ namespace gui
                 for(auto& msg : messages)
                     append_message(msg);
 
-                m_MessageList->show_all();
+                if(m_CurrentChannelFirstMessage.empty())
+                    m_CurrentChannelFirstMessage = messages[messages.size() - 1].m_ID;
+
                 m_PrivateList->set_sensitive(true);
                 m_ServerList->set_sensitive(true);
 
